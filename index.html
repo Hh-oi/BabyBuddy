@@ -118,34 +118,49 @@
             color: #555;
         }
 
-        /* --- 3. JUEGO PRINCIPAL (HABITACIÓN) --- */
+        /* --- 3. HABITACIÓN DEL BEBÉ CON FONDO RENDER 3D --- */
         #game-screen {
-            background: 
-                linear-gradient(to top, #f3d1b5 0%, #e1b491 25%, transparent 25%),
-                linear-gradient(to top, #ffffff 25%, #ffffff 26%, transparent 26%),
-                linear-gradient(90deg, #ffecf2 50%, #ffd6e4 50%);
-            background-size: 100% 100%, 100% 100%, 40px 100%;
+            background-image: url('cuarto_varon.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
         }
 
-        /* Ventana de fondo */
-        #game-screen::before, #closet-screen::before {
-            content: '';
+        /* Botón Invisible sobre la estantería/armario del fondo para tocarlo */
+        .closet-trigger {
             position: absolute;
-            top: 110px;
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-            border: 6px solid #ffffff;
-            border-radius: 50%;
-            box-shadow: inset 0 0 20px rgba(255,255,255,0.6);
-            z-index: 1;
+            top: 190px;
+            left: 28px;
+            width: 85px;
+            height: 250px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0); /* Invisible, pero interactivo */
+            border-radius: 10px;
+            z-index: 4;
+        }
+
+        /* Cartelito flotante animado que te dice que toques el mueble */
+        .closet-hint {
+            position: absolute;
+            top: 150px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #944dff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 4;
+            animation: bounce 1.5s infinite ease-in-out;
+            pointer-events: none;
         }
 
         .stats-panel {
             background: rgba(255, 255, 255, 0.95);
             padding: 10px 25px;
             border-radius: 50px;
-            box-shadow: 0 6px 0 #d4b2bc;
+            box-shadow: 0 6px 0 #c2a1ab;
             font-size: 22px;
             font-weight: bold;
             color: #d63384;
@@ -155,10 +170,10 @@
         .status-box {
             width: 85%;
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.93);
             padding: 10px;
             border-radius: 20px;
-            box-shadow: 0 6px 0 #debcc5;
+            box-shadow: 0 6px 0 #bfa1aa;
             z-index: 10;
         }
 
@@ -185,13 +200,13 @@
             transition: width 0.3s ease;
         }
 
-        /* Contenedor del Avatar y su Ropita superpuesta */
+        /* Contenedor del Avatar sentado sobre la alfombra del render */
         .avatar-container {
             position: relative;
-            height: 240px;
-            width: 200px;
+            height: 230px;
+            width: 190px;
             margin-top: auto;
-            margin-bottom: 15px;
+            margin-bottom: 35px;
             display: flex;
             justify-content: center;
             align-items: flex-end;
@@ -203,10 +218,9 @@
             height: 100%;
             width: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+            filter: drop-shadow(0 12px 10px rgba(0,0,0,0.3));
         }
 
-        /* Capa de ropa superpuesta al bebé */
         .clothes-overlay {
             position: absolute;
             top: 0;
@@ -215,11 +229,10 @@
             height: 100%;
             object-fit: contain;
             z-index: 6;
-            pointer-events: none; /* No interfiere con los clics */
+            pointer-events: none;
             display: none;
         }
 
-        /* Contenedor de botones de acción inferiores */
         .action-row {
             display: flex;
             gap: 15px;
@@ -228,98 +241,112 @@
             z-index: 10;
         }
 
-        /* --- 4. PANTALLA DE VESTIDOR --- */
-        #closet-screen {
-            background: 
-                linear-gradient(to top, #f3d1b5 0%, #e1b491 25%, transparent 25%),
-                linear-gradient(to top, #ffffff 25%, #ffffff 26%, transparent 26%),
-                linear-gradient(90deg, #ffecf2 50%, #ffd6e4 50%);
-            background-size: 100% 100%, 100% 100%, 40px 100%;
+        /* --- 4. ARMARIO POP-UP FLOCO (Estilo My Talking Tom) --- */
+        .closet-overlay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 20;
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
         }
 
-        .closet-panel {
+        .closet-overlay-screen.open {
+            display: flex;
+        }
+
+        .closet-modal {
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
-            padding: 15px;
-            box-shadow: 0 8px 0 #debcc5;
-            z-index: 10;
-            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 35px 35px 0 0;
+            padding: 25px 20px;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s ease-out;
         }
 
         .closet-title {
-            font-size: 18px;
-            color: #ff3385;
+            font-size: 20px;
+            color: #944dff;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* Grilla de ropas */
         .clothes-grid {
             display: flex;
             gap: 15px;
             justify-content: center;
             overflow-x: auto;
-            padding: 5px;
+            padding: 10px 5px;
+            margin-bottom: 20px;
         }
 
         .clothing-item {
-            width: 75px;
-            height: 75px;
-            background: #fff;
-            border: 3px solid #ffd6e4;
-            border-radius: 15px;
+            width: 80px;
+            height: 80px;
+            background: #f3ebff;
+            border: 3px solid #d6bfff;
+            border-radius: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 4px 0 #ffd6e4;
-            font-size: 28px; /* Emoji temporal mientras cargas tus Overlays */
+            box-shadow: 0 5px 0 #c4a6fc;
+            font-size: 32px;
             transition: all 0.1s ease;
         }
 
         .clothing-item:hover {
             transform: scale(1.05);
-            border-color: #ff3385;
+            border-color: #944dff;
         }
 
-        /* --- BOTONES Y ELEMENTOS UI --- */
+        /* --- BOTONES PREMIUM --- */
         .btn-ui {
             background: linear-gradient(180deg, #ff66a3 0%, #ff3385 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 20px;
+            padding: 15px 40px;
+            font-size: 22px;
             font-weight: bold;
             border-radius: 35px;
             cursor: pointer;
             box-shadow: 0 8px 0 #b30047, 0 10px 20px rgba(255, 51, 133, 0.3);
-            transition: all 0.1s ease;
             text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 280px;
         }
 
         .btn-ui:active {
             transform: translateY(4px);
-            box-shadow: 0 4px 0 #b30047, 0 5px 10px rgba(255, 51, 133, 0.3);
+            box-shadow: 0 4px 0 #b30047;
         }
 
-        .btn-secondary {
+        .btn-close-closet {
             background: linear-gradient(180deg, #b983ff 0%, #944dff 100%);
-            box-shadow: 0 8px 0 #5900b3, 0 10px 20px rgba(148, 77, 255, 0.3);
-        }
-        .btn-secondary:active {
-            box-shadow: 0 4px 0 #5900b3;
+            box-shadow: 0 6px 0 #5900b3;
+            display: block;
+            margin: 0 auto;
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-8px); }
         }
 
         @keyframes idle {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03) translateY(-3px); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
     </style>
 </head>
@@ -347,6 +374,10 @@
         </div>
 
         <div id="game-screen" class="screen">
+            
+            <div class="closet-hint">👗 TOCAME</div>
+            <div class="closet-trigger" onclick="toggleCloset(true)"></div>
+
             <div class="stats-panel">
                 🪙 <span id="coin-txt">Monedas: 0</span>
             </div>
@@ -364,26 +395,18 @@
             </div>
 
             <div class="action-row">
-                <button class="btn-ui" onclick="feedBaby()">🍼 ALIMENTAR</button>
-                <button class="btn-ui btn-secondary" onclick="openCloset()">👕 VESTIDOR</button>
-            </div>
-        </div>
-
-        <div id="closet-screen" class="screen">
-            <div class="stats-panel">👗 Vestidor</div>
-
-            <div class="avatar-container" style="margin-top: 20px;">
-                <img id="closet-baby-img" class="main-baby-avatar" src="" alt="Baby">
-                <img id="closet-clothes-overlay" class="clothes-overlay" src="" alt="Ropa">
+                <button class="btn-ui" onclick="feedBaby()">🍼 DAR BIBERÓN</button>
             </div>
 
-            <div class="closet-panel">
-                <div class="closet-title" id="closet-owner-title">Ropita</div>
-                <div class="clothes-grid" id="clothes-options-container">
-                    </div>
+            <div id="closet-overlay" class="closet-overlay-screen">
+                <div class="closet-modal">
+                    <div class="closet-title" id="closet-title-txt">Armario</div>
+                    <div class="clothes-grid" id="clothes-options-container">
+                        </div>
+                    <button class="btn-ui btn-close-closet" onclick="toggleCloset(false)">CERRAR ARMARIO</button>
+                </div>
             </div>
 
-            <button class="btn-ui" onclick="closeCloset()">GUARDAR Y VOLVER</button>
         </div>
 
     </div>
@@ -392,14 +415,14 @@
         let coins = 0;
         let hunger = 100;
         let selectedBaby = '';
-        let currentOutfit = ''; // Almacena la ruta de la ropa actual
+        let currentOutfit = '';
 
-        // Configuración de ropa (Podés cambiar los nombres por tus propios archivos .png transparentes si los creás)
+        // Opciones del placard
         const outfits = {
             varon: [
                 { id: 'original', icon: '❌', src: '' },
-                { id: 'gorrito', icon: '👑', src: 'ropa_varon_1.png' }, // Nombre de ejemplo para tus prendas transparentes
-                { id: 'buzo', icon: '🦖', src: 'ropa_varon_2.png' }
+                { id: 'gorrito', icon: '🏎️', src: 'ropa_varon_1.png' },
+                { id: 'buzo', icon: '🛞', src: 'ropa_varon_2.png' }
             ],
             nena: [
                 { id: 'original', icon: '❌', src: '' },
@@ -415,8 +438,13 @@
 
         function startGame(gender) {
             selectedBaby = gender;
-            currentOutfit = ''; // Empieza con su ropa original por defecto
+            currentOutfit = '';
             
+            // Si eligen la nena, podés cambiarle el fondo dinámicamente si después hacés su cuarto
+            if(gender === 'varon') {
+                document.getElementById('game-screen').style.backgroundImage = "url('cuarto_varon.jpg')";
+            }
+
             updateAvatarsAndClothes();
 
             document.getElementById('selection-screen').classList.remove('active');
@@ -425,58 +453,46 @@
             startHungerTimer();
         }
 
-        // Mantiene sincronizados los bebés y sus ropas en todas las pantallas
         function updateAvatarsAndClothes() {
             const babyFile = selectedBaby === 'varon' ? 'bebe_varon.png' : 'bebe_nena.png';
-            
             document.getElementById('active-baby-img').src = babyFile;
-            document.getElementById('closet-baby-img').src = babyFile;
 
             const roomOverlay = document.getElementById('baby-clothes-overlay');
-            const closetOverlay = document.getElementById('closet-clothes-overlay');
-
             if (currentOutfit) {
                 roomOverlay.src = currentOutfit;
                 roomOverlay.style.display = 'block';
-                closetOverlay.src = currentOutfit;
-                closetOverlay.style.display = 'block';
             } else {
                 roomOverlay.style.display = 'none';
-                closetOverlay.style.display = 'none';
             }
         }
 
-        // Ir al vestidor
-        function openCloset() {
-            document.getElementById('closet-owner-title').innerText = "Armario de: Bebé " + selectedBaby;
-            
-            // Renderizar los botones de ropa según el género elegido
-            const container = document.getElementById('clothes-options-container');
-            container.innerHTML = ''; // Limpiar anteriores
+        // Mostrar / Ocultar Armario Flotante
+        function toggleCloset(show) {
+            const modal = document.getElementById('closet-overlay');
+            if (show) {
+                document.getElementById('closet-title-txt').innerText = "Ropitas de " + (selectedBaby === 'varon' ? 'Varón' : 'Nena');
+                
+                // Cargar opciones en la grilla
+                const container = document.getElementById('clothes-options-container');
+                container.innerHTML = '';
+                
+                outfits[selectedBaby].forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'clothing-item';
+                    itemDiv.innerText = item.icon;
+                    itemDiv.onclick = () => {
+                        currentOutfit = item.src;
+                        updateAvatarsAndClothes();
+                    };
+                    container.appendChild(itemDiv);
+                });
 
-            outfits[selectedBaby].forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'clothing-item';
-                itemDiv.innerText = item.icon;
-                itemDiv.onclick = () => changeOutfit(item.src);
-                container.appendChild(itemDiv);
-            });
-
-            document.getElementById('game-screen').classList.remove('active');
-            document.getElementById('closet-screen').classList.add('active');
+                modal.classList.add('open');
+            } else {
+                modal.classList.remove('open');
+            }
         }
 
-        function changeOutfit(imgSrc) {
-            currentOutfit = imgSrc;
-            updateAvatarsAndClothes();
-        }
-
-        function closeCloset() {
-            document.getElementById('closet-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
-        }
-
-        // Mecánicas básicas
         function startHungerTimer() {
             setInterval(() => {
                 if (hunger > 0) {
