@@ -2,85 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>BabyBuddy - El Juego</title>
+    <title>BabyBuddy - Modo Dormir</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-        body { background-color: #ffb7d5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
         .game-container {
-            width: 100%; max-width: 430px; height: 92vh; border-radius: 40px;
-            border: 8px solid #fff; position: relative; overflow: hidden; background: #fff0f5;
+            width: 430px; height: 850px; background: #ffb7d5; position: relative;
+            overflow: hidden; border: 8px solid #fff; border-radius: 40px;
+            transition: background 0.5s;
         }
 
-        .screen { width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0; flex-direction: column; align-items: center; }
-        .screen.active { display: flex; }
+        /* MODO NOCHE: Se activa con la clase 'dark' */
+        .game-container.dark { background: #1a1a2e; }
+        .game-container.dark #bedroom { opacity: 0.6; }
 
-        /* BARRA LATERAL */
-        .sidebar {
-            position: absolute; left: 10px; top: 100px; z-index: 50;
-            display: flex; flex-direction: column; gap: 15px;
-        }
+        .room { width: 100%; height: 100%; position: absolute; }
+        #bedroom { background: url('cuarto_varon.jpg') center/cover; transition: opacity 0.5s; }
+
+        /* NAVEGACIÓN */
+        .sidebar { position: absolute; left: 15px; top: 150px; z-index: 10; display: flex; flex-direction: column; gap: 20px; }
         .nav-btn {
-            width: 60px; height: 60px; background: white; border-radius: 15px;
-            border: 4px solid #ff3385; cursor: pointer; display: flex;
-            justify-content: center; align-items: center; font-size: 24px;
-            box-shadow: 0 4px 0 #ff3385; transition: 0.2s;
+            width: 65px; height: 65px; background: white; border-radius: 20px;
+            display: flex; justify-content: center; align-items: center; font-size: 30px;
+            cursor: pointer; border: 3px solid #ff3385;
         }
 
-        /* ANIMACIÓN DEL BEBÉ */
+        /* BEBÉ Y ANIMACIÓN */
         .baby-container {
-            margin-top: auto; margin-bottom: 50px;
-            animation: babyMove 3s infinite ease-in-out;
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            transition: all 0.5s;
         }
-        @keyframes babyMove {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scale(1.05) translateY(-10px); }
-        }
-        .baby-img { width: 180px; height: auto; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2)); }
+        .baby-img { width: 200px; transition: transform 0.5s; }
 
-        /* FONDOS */
-        #room-bedroom { background: url('cuarto_varon.jpg') center/cover; }
-        #room-kitchen { background: #fffaf0; }
-        #room-bathroom { background: #e0ffff; }
+        /* MODO DORMIR: El bebé se acuesta */
+        .sleeping { transform: translateX(-50%) translateY(50px) rotate(90deg); opacity: 0.8; }
+
+        /* INTERRUPTOR DE LUZ */
+        .light-switch {
+            position: absolute; top: 40px; right: 40px; font-size: 40px; cursor: pointer; z-index: 20;
+        }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <div id="room-bedroom" class="screen active">
+    <div class="game-container" id="game-box">
+        <div class="light-switch" onclick="toggleLight()">💡</div>
+
+        <div id="bedroom" class="room">
             <div class="sidebar">
-                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
-                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
-                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
+                <div class="nav-btn">🏠</div>
+                <div class="nav-btn">🍎</div>
+                <div class="nav-btn">🛁</div>
             </div>
-            <div class="baby-container">
+
+            <div class="baby-container" id="baby">
                 <img src="bebe_varon.png" class="baby-img">
             </div>
-        </div>
-
-        <div id="room-kitchen" class="screen">
-            <div class="sidebar">
-                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
-                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
-                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
-            </div>
-            <h2 style="margin-top: 100px;">Cocina 🍎</h2>
-        </div>
-
-        <div id="room-bathroom" class="screen">
-            <div class="sidebar">
-                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
-                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
-                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
-            </div>
-            <h2 style="margin-top: 100px;">Baño 🛁</h2>
         </div>
     </div>
 
     <script>
-        function showRoom(roomName) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('room-' + roomName).classList.add('active');
+        function toggleLight() {
+            const container = document.getElementById('game-box');
+            const baby = document.getElementById('baby');
+            
+            container.classList.toggle('dark');
+            baby.classList.toggle('sleeping');
+            
+            // Si el bebé está durmiendo, podrías cambiar el src de la imagen 
+            // a una donde tenga los ojos cerrados si tenés ese archivo
         }
     </script>
 </body>
