@@ -2,511 +2,85 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BabyBuddy - El Juego</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background-color: #ffb7d5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
-        body {
-            background-color: #ffb7d5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Contenedor principal estilo celular */
         .game-container {
-            width: 100%;
-            max-width: 430px;
-            height: 92vh;
-            max-height: 850px;
-            border-radius: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            border: 8px solid #fff;
-            position: relative;
-            overflow: hidden;
-            background: #fff0f5;
+            width: 100%; max-width: 430px; height: 92vh; border-radius: 40px;
+            border: 8px solid #fff; position: relative; overflow: hidden; background: #fff0f5;
         }
 
-        /* PANTALLAS */
-        .screen {
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 30px 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
+        .screen { width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
+
+        /* BARRA LATERAL */
+        .sidebar {
+            position: absolute; left: 10px; top: 100px; z-index: 50;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .nav-btn {
+            width: 60px; height: 60px; background: white; border-radius: 15px;
+            border: 4px solid #ff3385; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; font-size: 24px;
+            box-shadow: 0 4px 0 #ff3385; transition: 0.2s;
         }
 
-        .screen.active {
-            display: flex;
+        /* ANIMACIÓN DEL BEBÉ */
+        .baby-container {
+            margin-top: auto; margin-bottom: 50px;
+            animation: babyMove 3s infinite ease-in-out;
         }
+        @keyframes babyMove {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.05) translateY(-10px); }
+        }
+        .baby-img { width: 180px; height: auto; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2)); }
 
-        /* --- 1. PANTALLA DE INICIO --- */
-        #start-screen {
-            background: linear-gradient(180deg, #ffd6e4 0%, #ffb7d5 100%);
-            justify-content: center;
-            gap: 40px;
-        }
-
-        .game-title {
-            font-size: 42px;
-            color: #ffffff;
-            text-shadow: 0 4px 8px rgba(214, 51, 132, 0.5), 0 -2px 0 #d63384;
-            text-align: center;
-            animation: bounce 2s infinite ease-in-out;
-        }
-
-        /* --- 2. PANTALLA DE SELECCIÓN --- */
-        #selection-screen {
-            background: linear-gradient(180deg, #fff0f5 0%, #ffd6e4 100%);
-            justify-content: center;
-            gap: 30px;
-        }
-
-        .select-title {
-            font-size: 24px;
-            color: #d63384;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .selection-box {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .select-card {
-            background: white;
-            padding: 20px;
-            border-radius: 25px;
-            box-shadow: 0 10px 0 #f0d5de;
-            border: 3px solid #ffffff;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-            width: 140px;
-        }
-
-        .select-card:hover {
-            transform: scale(1.08);
-        }
-
-        .select-card img {
-            width: 100px;
-            height: 110px;
-            object-fit: contain;
-        }
-
-        .select-name {
-            margin-top: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        /* --- 3. HABITACIÓN DEL BEBÉ CON FONDO RENDER 3D --- */
-        #game-screen {
-            background-image: url('cuarto_varon.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-
-        /* Botón Invisible sobre la estantería/armario del fondo para tocarlo */
-        .closet-trigger {
-            position: absolute;
-            top: 190px;
-            left: 28px;
-            width: 85px;
-            height: 250px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0); /* Invisible, pero interactivo */
-            border-radius: 10px;
-            z-index: 4;
-        }
-
-        /* Cartelito flotante animado que te dice que toques el mueble */
-        .closet-hint {
-            position: absolute;
-            top: 150px;
-            left: 25px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #944dff;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 4;
-            animation: bounce 1.5s infinite ease-in-out;
-            pointer-events: none;
-        }
-
-        .stats-panel {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 25px;
-            border-radius: 50px;
-            box-shadow: 0 6px 0 #c2a1ab;
-            font-size: 22px;
-            font-weight: bold;
-            color: #d63384;
-            z-index: 10;
-        }
-
-        .status-box {
-            width: 85%;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.93);
-            padding: 10px;
-            border-radius: 20px;
-            box-shadow: 0 6px 0 #bfa1aa;
-            z-index: 10;
-        }
-
-        .status-label {
-            font-size: 12px;
-            color: #ff3385;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .bar-container {
-            width: 100%;
-            background: #eee;
-            height: 16px;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #fff;
-        }
-
-        .bar-fill {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff3385, #ff85b3);
-            transition: width 0.3s ease;
-        }
-
-        /* Contenedor del Avatar sentado sobre la alfombra del render */
-        .avatar-container {
-            position: relative;
-            height: 230px;
-            width: 190px;
-            margin-top: auto;
-            margin-bottom: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            z-index: 5;
-            animation: idle 3s infinite ease-in-out;
-        }
-
-        .main-baby-avatar {
-            height: 100%;
-            width: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 12px 10px rgba(0,0,0,0.3));
-        }
-
-        .clothes-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            z-index: 6;
-            pointer-events: none;
-            display: none;
-        }
-
-        .action-row {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        /* --- 4. ARMARIO POP-UP FLOCO (Estilo My Talking Tom) --- */
-        .closet-overlay-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 20;
-            display: none;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .closet-overlay-screen.open {
-            display: flex;
-        }
-
-        .closet-modal {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 35px 35px 0 0;
-            padding: 25px 20px;
-            box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
-            animation: slideUp 0.3s ease-out;
-        }
-
-        .closet-title {
-            font-size: 20px;
-            color: #944dff;
-            text-align: center;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .clothes-grid {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            overflow-x: auto;
-            padding: 10px 5px;
-            margin-bottom: 20px;
-        }
-
-        .clothing-item {
-            width: 80px;
-            height: 80px;
-            background: #f3ebff;
-            border: 3px solid #d6bfff;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #c4a6fc;
-            font-size: 32px;
-            transition: all 0.1s ease;
-        }
-
-        .clothing-item:hover {
-            transform: scale(1.05);
-            border-color: #944dff;
-        }
-
-        /* --- BOTONES PREMIUM --- */
-        .btn-ui {
-            background: linear-gradient(180deg, #ff66a3 0%, #ff3385 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 22px;
-            font-weight: bold;
-            border-radius: 35px;
-            cursor: pointer;
-            box-shadow: 0 8px 0 #b30047, 0 10px 20px rgba(255, 51, 133, 0.3);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            width: 100%;
-            max-width: 280px;
-        }
-
-        .btn-ui:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #b30047;
-        }
-
-        .btn-close-closet {
-            background: linear-gradient(180deg, #b983ff 0%, #944dff 100%);
-            box-shadow: 0 6px 0 #5900b3;
-            display: block;
-            margin: 0 auto;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        @keyframes idle {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02) translateY(-2px); }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
+        /* FONDOS */
+        #room-bedroom { background: url('cuarto_varon.jpg') center/cover; }
+        #room-kitchen { background: #fffaf0; }
+        #room-bathroom { background: #e0ffff; }
     </style>
 </head>
 <body>
 
     <div class="game-container">
-        
-        <div id="start-screen" class="screen active">
-            <h1 class="game-title">BabyBuddy ✨</h1>
-            <button class="btn-ui" onclick="goToSelection()">JUGAR</button>
-        </div>
-
-        <div id="selection-screen" class="screen">
-            <h2 class="select-title">¿A quién querés cuidar hoy?</h2>
-            <div class="selection-box">
-                <div class="select-card" onclick="startGame('varon')">
-                    <img src="bebe_varon.png" alt="Varón" onerror="this.src='https://placehold.co/100x110/ffccd5/fff?text=Varon'">
-                    <div class="select-name">Bebé Varón</div>
-                </div>
-                <div class="select-card" onclick="startGame('nena')">
-                    <img src="bebe_nena.png" alt="Nena" onerror="this.src='https://placehold.co/100x110/ffccd5/fff?text=Nena'">
-                    <div class="select-name">Bebé Nena</div>
-                </div>
+        <div id="room-bedroom" class="screen active">
+            <div class="sidebar">
+                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
+                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
+                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
+            </div>
+            <div class="baby-container">
+                <img src="bebe_varon.png" class="baby-img">
             </div>
         </div>
 
-        <div id="game-screen" class="screen">
-            
-            <div class="closet-hint">👗 TOCAME</div>
-            <div class="closet-trigger" onclick="toggleCloset(true)"></div>
-
-            <div class="stats-panel">
-                🪙 <span id="coin-txt">Monedas: 0</span>
+        <div id="room-kitchen" class="screen">
+            <div class="sidebar">
+                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
+                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
+                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
             </div>
-
-            <div class="status-box">
-                <div class="status-label">🍼 NIVEL DE SACIEDAD</div>
-                <div class="bar-container">
-                    <div id="hunger-bar" class="bar-fill"></div>
-                </div>
-            </div>
-
-            <div class="avatar-container">
-                <img id="active-baby-img" class="main-baby-avatar" src="" alt="Baby">
-                <img id="baby-clothes-overlay" class="clothes-overlay" src="" alt="Ropa">
-            </div>
-
-            <div class="action-row">
-                <button class="btn-ui" onclick="feedBaby()">🍼 DAR BIBERÓN</button>
-            </div>
-
-            <div id="closet-overlay" class="closet-overlay-screen">
-                <div class="closet-modal">
-                    <div class="closet-title" id="closet-title-txt">Armario</div>
-                    <div class="clothes-grid" id="clothes-options-container">
-                        </div>
-                    <button class="btn-ui btn-close-closet" onclick="toggleCloset(false)">CERRAR ARMARIO</button>
-                </div>
-            </div>
-
+            <h2 style="margin-top: 100px;">Cocina 🍎</h2>
         </div>
 
+        <div id="room-bathroom" class="screen">
+            <div class="sidebar">
+                <div class="nav-btn" onclick="showRoom('bedroom')">🏠</div>
+                <div class="nav-btn" onclick="showRoom('kitchen')">🍎</div>
+                <div class="nav-btn" onclick="showRoom('bathroom')">🛁</div>
+            </div>
+            <h2 style="margin-top: 100px;">Baño 🛁</h2>
+        </div>
     </div>
 
     <script>
-        let coins = 0;
-        let hunger = 100;
-        let selectedBaby = '';
-        let currentOutfit = '';
-
-        // Opciones del placard
-        const outfits = {
-            varon: [
-                { id: 'original', icon: '❌', src: '' },
-                { id: 'gorrito', icon: '🏎️', src: 'ropa_varon_1.png' },
-                { id: 'buzo', icon: '🛞', src: 'ropa_varon_2.png' }
-            ],
-            nena: [
-                { id: 'original', icon: '❌', src: '' },
-                { id: 'vestido', icon: '🎀', src: 'ropa_nena_1.png' },
-                { id: 'pijama', icon: '🦄', src: 'ropa_nena_2.png' }
-            ]
-        };
-
-        function goToSelection() {
-            document.getElementById('start-screen').classList.remove('active');
-            document.getElementById('selection-screen').classList.add('active');
-        }
-
-        function startGame(gender) {
-            selectedBaby = gender;
-            currentOutfit = '';
-            
-            // Si eligen la nena, podés cambiarle el fondo dinámicamente si después hacés su cuarto
-            if(gender === 'varon') {
-                document.getElementById('game-screen').style.backgroundImage = "url('cuarto_varon.jpg')";
-            }
-
-            updateAvatarsAndClothes();
-
-            document.getElementById('selection-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
-
-            startHungerTimer();
-        }
-
-        function updateAvatarsAndClothes() {
-            const babyFile = selectedBaby === 'varon' ? 'bebe_varon.png' : 'bebe_nena.png';
-            document.getElementById('active-baby-img').src = babyFile;
-
-            const roomOverlay = document.getElementById('baby-clothes-overlay');
-            if (currentOutfit) {
-                roomOverlay.src = currentOutfit;
-                roomOverlay.style.display = 'block';
-            } else {
-                roomOverlay.style.display = 'none';
-            }
-        }
-
-        // Mostrar / Ocultar Armario Flotante
-        function toggleCloset(show) {
-            const modal = document.getElementById('closet-overlay');
-            if (show) {
-                document.getElementById('closet-title-txt').innerText = "Ropitas de " + (selectedBaby === 'varon' ? 'Varón' : 'Nena');
-                
-                // Cargar opciones en la grilla
-                const container = document.getElementById('clothes-options-container');
-                container.innerHTML = '';
-                
-                outfits[selectedBaby].forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'clothing-item';
-                    itemDiv.innerText = item.icon;
-                    itemDiv.onclick = () => {
-                        currentOutfit = item.src;
-                        updateAvatarsAndClothes();
-                    };
-                    container.appendChild(itemDiv);
-                });
-
-                modal.classList.add('open');
-            } else {
-                modal.classList.remove('open');
-            }
-        }
-
-        function startHungerTimer() {
-            setInterval(() => {
-                if (hunger > 0) {
-                    hunger -= 0.5;
-                    document.getElementById('hunger-bar').style.width = hunger + '%';
-                }
-            }, 250);
-        }
-
-        function feedBaby() {
-            hunger = 100;
-            coins += 10;
-            document.getElementById('hunger-bar').style.width = hunger + '%';
-            document.getElementById('coin-txt').innerText = "Monedas: " + coins;
+        function showRoom(roomName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('room-' + roomName).classList.add('active');
         }
     </script>
 </body>
