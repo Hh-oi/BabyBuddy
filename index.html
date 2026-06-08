@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BabyBuddy - Habitación Mágica</title>
+    <title>BabyBuddy - El Juego</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,7 +21,7 @@
             overflow: hidden;
         }
 
-        /* Contenedor estilo celular */
+        /* Contenedor principal estilo celular */
         .game-container {
             width: 100%;
             max-width: 430px;
@@ -31,79 +31,153 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.25);
             border: 8px solid #fff;
             position: relative;
-            display: flex;
+            overflow: hidden;
+            background: #fff0f5;
+        }
+
+        /* PANTALLAS (Por defecto ocultas, controladas por JS) */
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 25px 20px;
-            overflow: hidden;
+            padding: 30px 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-            /* DISEÑO DE LA HABITACIÓN TIPO TALKING TOM (Pared y piso 3D) */
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- 1. PANTALLA DE INICIO --- */
+        #start-screen {
+            background: linear-gradient(180deg, #ffd6e4 0%, #ffb7d5 100%);
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .game-title {
+            font-size: 42px;
+            color: #ffffff;
+            text-shadow: 0 4px 8px rgba(214, 51, 132, 0.5), 0 -2px 0 #d63384;
+            text-align: center;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        /* --- 2. PANTALLA DE SELECCIÓN --- */
+        #selection-screen {
+            background: linear-gradient(180deg, #fff0f5 0%, #ffd6e4 100%);
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .select-title {
+            font-size: 24px;
+            color: #d63384;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .selection-box {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .select-card {
+            background: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 0 #f0d5de;
+            border: 3px solid #ffffff;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 140px;
+        }
+
+        .select-card:hover {
+            transform: scale(1.08);
+        }
+
+        .select-card img {
+            width: 100px;
+            height: 110px;
+            object-fit: contain;
+        }
+
+        .select-name {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* --- 3. JUEGO PRINCIPAL (HABITACIÓN) --- */
+        #game-screen {
             background: 
-                /* El piso de madera tierno abajo */
                 linear-gradient(to top, #f3d1b5 0%, #e1b491 25%, transparent 25%),
-                /* La línea del zócalo de la pared */
                 linear-gradient(to top, #ffffff 25%, #ffffff 26%, transparent 26%),
-                /* Papel tapiz de rayas verticales pastel */
                 linear-gradient(90deg, #ffecf2 50%, #ffd6e4 50%);
             background-size: 100% 100%, 100% 100%, 40px 100%;
         }
 
-        /* VENTANA AL FONDO DE LA PIEZA */
-        .game-container::before {
+        /* Ventana de fondo */
+        #game-screen::before {
             content: '';
             position: absolute;
-            top: 100px;
-            width: 160px;
-            height: 160px;
+            top: 110px;
+            width: 150px;
+            height: 150px;
             background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
             border: 6px solid #ffffff;
             border-radius: 50%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.6);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.6);
             z-index: 1;
         }
 
-        /* Marcador de Monedas Pro */
         .stats-panel {
             background: rgba(255, 255, 255, 0.95);
             padding: 10px 25px;
             border-radius: 50px;
-            box-shadow: 0 8px 0 #d4b2bc;
+            box-shadow: 0 6px 0 #d4b2bc;
             font-size: 22px;
             font-weight: bold;
             color: #d63384;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             z-index: 10;
         }
 
-        /* Barra de Estado (Nivel de saciedad) */
         .status-box {
             width: 85%;
             text-align: center;
             background: rgba(255, 255, 255, 0.9);
-            padding: 12px;
+            padding: 10px;
             border-radius: 20px;
             box-shadow: 0 6px 0 #debcc5;
             z-index: 10;
         }
+
         .status-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #ff3385;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
+
         .bar-container {
             width: 100%;
             background: #eee;
-            height: 18px;
+            height: 16px;
             border-radius: 10px;
             overflow: hidden;
             border: 2px solid #fff;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .bar-fill {
             width: 100%;
             height: 100%;
@@ -111,64 +185,47 @@
             transition: width 0.3s ease;
         }
 
-        /* Zona de los bebés parados en el piso de la habitación */
-        .baby-stage {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            width: 100%;
-            margin-top: auto;
-            margin-bottom: 20px;
-            z-index: 10;
-        }
-
-        .baby-card {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 24px;
-            box-shadow: 0 12px 0 #c29d85; /* Sombra que combina con el piso */
-            border: 3px solid #ffffff;
-            transition: transform 0.2s;
-        }
-
-        .baby-card:hover {
-            transform: scale(1.05) translateY(-5px);
-        }
-
-        .baby-card img {
-            width: 120px;
-            height: 130px;
+        /* Bebé principal en escena */
+        .main-baby-avatar {
+            height: 240px;
             object-fit: contain;
+            margin-top: auto;
+            margin-bottom: 10px;
+            z-index: 5;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+            animation: idle 3s infinite ease-in-out;
         }
 
-        .baby-name {
-            margin-top: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #7a5843;
-        }
-
-        /* Botón de acción Premium */
-        .action-btn {
+        /* --- BOTONES Y ELEMENTOS UI --- */
+        .btn-ui {
             background: linear-gradient(180deg, #ff66a3 0%, #ff3385 100%);
             color: white;
             border: none;
-            padding: 16px 50px;
-            font-size: 24px;
+            padding: 15px 40px;
+            font-size: 22px;
             font-weight: bold;
             border-radius: 35px;
             cursor: pointer;
-            box-shadow: 0 8px 0 #b30047, 0 12px 20px rgba(255, 51, 133, 0.35);
+            box-shadow: 0 8px 0 #b30047, 0 10px 20px rgba(255, 51, 133, 0.3);
             transition: all 0.1s ease;
             text-shadow: 0 2px 4px rgba(0,0,0,0.15);
             z-index: 10;
-            margin-bottom: 10px;
         }
 
-        .action-btn:active {
+        .btn-ui:active {
             transform: translateY(4px);
-            box-shadow: 0 4px 0 #b30047, 0 6px 10px rgba(255, 51, 133, 0.35);
+            box-shadow: 0 4px 0 #b30047, 0 5px 10px rgba(255, 51, 133, 0.3);
+        }
+
+        /* Animaciones tiernas */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes idle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03) translateY(-3px); }
         }
     </style>
 </head>
@@ -176,52 +233,88 @@
 
     <div class="game-container">
         
-        <div class="stats-panel">
-            🪙 <span id="coin-txt">Monedas: 0</span>
+        <div id="start-screen" class="screen active">
+            <h1 class="game-title">BabyBuddy ✨</h1>
+            <button class="btn-ui" onclick="goToSelection()">JUGAR</button>
         </div>
 
-        <div class="status-box">
-            <div class="status-label">🍼 NIVEL DE SACIEDAD</div>
-            <div class="bar-container">
-                <div id="hunger-bar" class="bar-fill"></div>
+        <div id="selection-screen" class="screen">
+            <h2 class="select-title">¿A quién querés cuidar hoy?</h2>
+            <div class="selection-box">
+                <div class="select-card" onclick="startGame('varon')">
+                    <img src="bebe_varon.jpeg" alt="Varón" onerror="this.src='https://placehold.co/100x110/ffccd5/fff?text=Varon'">
+                    <div class="select-name">Bebé Varón</div>
+                </div>
+                <div class="select-card" onclick="startGame('nena')">
+                    <img src="bebe_nena.jpeg" alt="Nena" onerror="this.src='https://placehold.co/100x110/ffccd5/fff?text=Nena'">
+                    <div class="select-name">Bebé Nena</div>
+                </div>
             </div>
         </div>
 
-        <div class="baby-stage">
-            <div class="baby-card">
-                <img src="bebe_varon.jpeg" alt="Bebé Varón" onerror="this.src='https://placehold.co/120x130/ffccd5/fff?text=Bebe+Varon'">
-                <div class="baby-name">Bebe Varon</div>
+        <div id="game-screen" class="screen">
+            <div class="stats-panel">
+                🪙 <span id="coin-txt">Monedas: 0</span>
             </div>
-            <div class="baby-card">
-                <img src="bebe_nena.jpeg" alt="Bebé Nena" onerror="this.src='https://placehold.co/120x130/ffccd5/fff?text=Bebe+Nena'">
-                <div class="baby-name">Bebe Nena</div>
-            </div>
-        </div>
 
-        <button class="action-btn" onclick="feedBabies()">DAR BIBERÓN</button>
+            <div class="status-box">
+                <div class="status-label">🍼 NIVEL DE SACIEDAD</div>
+                <div class="bar-container">
+                    <div id="hunger-bar" class="bar-fill"></div>
+                </div>
+            </div>
+
+            <img id="active-baby-img" class="main-baby-avatar" src="" alt="Baby">
+
+            <button class="btn-ui" onclick="feedBaby()">DAR BIBERÓN</button>
+        </div>
 
     </div>
 
     <script>
         let coins = 0;
         let hunger = 100;
+        let selectedBaby = '';
 
-        const coinTxt = document.getElementById('coin-txt');
-        const hungerBar = document.getElementById('hunger-bar');
+        // Cambiar de Inicio a Selección
+        function goToSelection() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('selection-screen').classList.add('active');
+        }
 
-        // El hambre baja solita de a poco
-        setInterval(() => {
-            if (hunger > 0) {
-                hunger -= 0.4;
-                hungerBar.style.width = hunger + '%';
+        // Iniciar el juego con el bebé elegido
+        function startGame(gender) {
+            selectedBaby = gender;
+            const babyImgNode = document.getElementById('active-baby-img');
+            
+            if(gender === 'varon') {
+                babyImgNode.src = 'bebe_varon.jpeg';
+            } else {
+                babyImgNode.src = 'bebe_nena.jpeg';
             }
-        }, 200);
 
-        function feedBabies() {
+            document.getElementById('selection-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+
+            // Iniciar ciclo de hambre pasiva
+            startHungerTimer();
+        }
+
+        // Lógica de juego
+        function startHungerTimer() {
+            setInterval(() => {
+                if (hunger > 0) {
+                    hunger -= 0.5;
+                    document.getElementById('hunger-bar').style.width = hunger + '%';
+                }
+            }, 250);
+        }
+
+        function feedBaby() {
             hunger = 100;
             coins += 10;
-            hungerBar.style.width = hunger + '%';
-            coinTxt.innerText = "Monedas: " + coins;
+            document.getElementById('hunger-bar').style.width = hunger + '%';
+            document.getElementById('coin-txt').innerText = "Monedas: " + coins;
         }
     </script>
 </body>
